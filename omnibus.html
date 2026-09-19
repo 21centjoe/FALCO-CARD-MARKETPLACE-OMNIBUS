@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FALCO Omnibus — Decks &amp; On-Chain Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#08050f; --crimson:#c81f3f; --crimson-glow:#ff3358;
+  --royal:#3f56c8; --royal-glow:#5f7dff; --parchment:#efe6d8; --dim:#a99cc4;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:radial-gradient(ellipse 60% 40% at 20% -10%, rgba(200,31,63,.16), transparent 60%),
+             radial-gradient(ellipse 60% 40% at 85% 0%, rgba(63,86,200,.18), transparent 60%),
+             var(--ink);
+  color:var(--parchment); font-family:'EB Garamond',serif; font-size:17px; line-height:1.5;
+}
+h1,h2,h3{font-family:'Cinzel',serif; letter-spacing:.03em; margin:0;}
+code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(8,5,15,.94);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,.08);}
+.topbar-inner{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.brand{font-family:'Cinzel',serif;font-weight:900;letter-spacing:.08em;font-size:1.1rem;margin-right:auto;}
+.brand span{color:var(--royal-glow);}
+.tabbtn{font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.05em;background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--dim);padding:8px 15px;border-radius:20px;cursor:pointer;}
+.tabbtn:hover{border-color:var(--royal-glow);color:var(--parchment);}
+.tabbtn.active{background:var(--crimson);border-color:var(--crimson);color:#fff;}
+.tabpanel{display:none;} .tabpanel.active{display:block;}
+.head{padding:38px 0 6px;} .head p{color:var(--dim);max-width:70ch;margin-top:6px;}
+.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 6px;}
+.chip{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.04em;border:1px solid var(--royal-glow);color:var(--parchment);background:transparent;padding:6px 13px;border-radius:16px;cursor:pointer;}
+.chip.active{background:var(--royal);}
+.gridcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px;margin:20px 0 60px;perspective:900px;}
+.card{aspect-ratio:5/7;perspective:800px;}
+.card .inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.7,.3,1);}
+.card.flipped .inner{transform:rotateY(180deg);}
+.face{position:absolute;inset:0;border-radius:8px;border:1.5px solid var(--royal-glow);background:#0a0616;box-shadow:0 0 14px rgba(200,31,63,.22), inset 0 0 20px rgba(63,86,200,.22);backface-visibility:hidden;overflow:hidden;cursor:pointer;}
+.face svg{width:100%;height:100%;display:block;}
+.card .back{transform:rotateY(180deg);display:flex;flex-direction:column;padding:10px;}
+.back h4{font-size:.82rem;margin-bottom:4px;} .back p{font-size:.72rem;color:var(--dim);}
+.card-title{position:absolute;left:0;right:0;bottom:0;padding:5px 7px 7px;font-family:'Cinzel',serif;font-size:.64rem;background:linear-gradient(0deg, rgba(5,3,10,.9), transparent);}
+.card-title b{display:block;font-size:.76rem;color:var(--parchment);}
+.card-title i{color:var(--dim);font-style:italic;font-family:'EB Garamond',serif;font-size:.68rem;}
+.pow{position:absolute;top:5px;right:5px;background:rgba(5,3,10,.8);border:1px solid var(--crimson);color:#fff;font-family:'Cinzel',serif;font-size:.6rem;border-radius:10px;padding:2px 6px;}
+
+/* code browser */
+.codewrap{display:grid;grid-template-columns:230px 1fr;gap:0;border:1px solid rgba(255,255,255,.12);border-radius:8px;overflow:hidden;margin:20px 0 60px;min-height:520px;}
+.filelist{background:#0d0818;border-right:1px solid rgba(255,255,255,.1);padding:10px;}
+.filelist button{display:block;width:100%;text-align:left;background:transparent;border:none;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:.78rem;padding:7px 8px;border-radius:4px;cursor:pointer;margin-bottom:2px;}
+.filelist button:hover{background:rgba(255,255,255,.06);color:var(--parchment);}
+.filelist button.active{background:var(--royal);color:#fff;}
+.filelist .grp{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.06em;color:var(--dim);text-transform:uppercase;padding:10px 8px 4px;}
+.codeview{position:relative;background:#0a0714;}
+.codeview .bar{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.1);}
+.codeview .bar span{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--dim);}
+.copybtn{font-family:'Cinzel',serif;font-size:.65rem;background:transparent;border:1px solid var(--royal-glow);color:var(--parchment);padding:4px 10px;border-radius:4px;cursor:pointer;}
+.copybtn:hover{background:var(--royal);}
+.codeview pre{margin:0;padding:16px;overflow:auto;max-height:600px;font-size:.82rem;line-height:1.55;color:#dcd4ea;white-space:pre;}
+footer{border-top:1px solid rgba(255,255,255,.08);padding:24px 0 50px;color:var(--dim);font-size:.85rem;}
+.notice{border-left:2px solid var(--royal-glow);padding:10px 16px;margin:10px 0 26px;color:var(--dim);font-size:.88rem;background:rgba(63,86,200,.08);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">FALCO <span>OMNIBUS</span></div>
+    <button class="tabbtn active" data-tab="decks">Decks</button>
+    <button class="tabbtn" data-tab="code">Code</button>
+  </div>
+</div>
+
+<div class="wrap tabpanel active" id="tab-decks">
+  <div class="head">
+    <h2>Every deck, visualized</h2>
+    <p>All four card sets in one gallery — FALCO's 20 Keys, the 24-card Euchre deck, the 40-card Naipes deck, and the full 78-card Tarot. Click any card to flip it.</p>
+  </div>
+  <div class="subtabs" id="deckChips"></div>
+  <div class="gridcards" id="deckGrid"></div>
+</div>
+
+<div class="wrap tabpanel" id="tab-code">
+  <div class="head">
+    <h2>The on-chain starter kit</h2>
+    <p>Every file from the download, in one place. Browse the contracts, the deploy script, and the page that ties it all together.</p>
+  </div>
+  <div class="notice">This is the same code from the zip — read-only here for reference. Use the download for a project folder you can actually run.</div>
+  <div class="codewrap">
+    <div class="filelist" id="fileList"></div>
+    <div class="codeview">
+      <div class="bar"><span id="fileLabel">—</span><button class="copybtn" id="copyBtn">Copy</button></div>
+      <pre id="codeOut"></pre>
+    </div>
+  </div>
+</div>
+
+<footer class="wrap"><p><i>FALCO Omnibus — decks and code, side by side.</i></p></footer>
+
+<script id="files-data" type="application/json">{"contracts/FalcoCard.sol": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol\";\nimport \"@openzeppelin/contracts/access/Ownable.sol\";\n\n/// @title FalcoCard\n/// @notice A minimal ERC-721 representing one FALCO / Euchre / Naipes / Tarot card.\n/// @dev Test on a testnet (e.g. Sepolia) before ever deploying with real funds involved.\ncontract FalcoCard is ERC721URIStorage, Ownable {\n    uint256 public nextId;\n\n    // on-chain stats, mirroring the fields used in the FALCO Vault page\n    mapping(uint256 => uint16) public power;      // 1-99\n    mapping(uint256 => string) public deckType;   // \"falco\" | \"euchre\" | \"naipes\" | \"tarot\" | \"custom\"\n\n    event CardMinted(uint256 indexed tokenId, address indexed to, string deckType, uint16 power);\n\n    constructor() ERC721(\"FALCO Card\", \"FALCO\") Ownable(msg.sender) {}\n\n    /// @param to           recipient wallet address\n    /// @param tokenURI_    URL or data-URI for the card's metadata JSON (name/image/attributes)\n    /// @param power_       the card's power stat\n    /// @param deckType_    which deck this card belongs to\n    function mint(\n        address to,\n        string memory tokenURI_,\n        uint16 power_,\n        string memory deckType_\n    ) external onlyOwner returns (uint256) {\n        uint256 id = nextId++;\n        _safeMint(to, id);\n        _setTokenURI(id, tokenURI_);\n        power[id] = power_;\n        deckType[id] = deckType_;\n        emit CardMinted(id, to, deckType_, power_);\n        return id;\n    }\n\n    /// @notice Let the card's owner raise its power stat (mirrors the Vault's \"Train\" feature).\n    /// @dev Add access control / a cooldown / a payment requirement here before using this for real.\n    function train(uint256 tokenId, uint16 amount) external {\n        require(ownerOf(tokenId) == msg.sender, \"not your card\");\n        require(power[tokenId] + amount <= 99, \"power capped at 99\");\n        power[tokenId] += amount;\n    }\n}\n", "contracts/FalcoMarket.sol": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC721/IERC721.sol\";\nimport \"@openzeppelin/contracts/security/ReentrancyGuard.sol\";\n\n/// @title FalcoMarket\n/// @notice A minimal peer-to-peer marketplace for FalcoCard tokens, priced in the chain's native currency.\n/// @dev Unaudited scaffolding. Get a real audit before listing anything with real value.\ncontract FalcoMarket is ReentrancyGuard {\n    IERC721 public immutable cards;\n\n    struct Listing {\n        address seller;\n        uint256 price; // in wei\n        bool active;\n    }\n\n    mapping(uint256 => Listing) public listings;\n\n    event Listed(uint256 indexed tokenId, address indexed seller, uint256 price);\n    event Sold(uint256 indexed tokenId, address indexed buyer, uint256 price);\n    event Cancelled(uint256 indexed tokenId);\n\n    constructor(address cardsAddress) {\n        cards = IERC721(cardsAddress);\n    }\n\n    /// @notice List a card you own. You must first call\n    ///   cards.setApprovalForAll(marketAddress, true)\n    /// from your wallet so this contract can move the token on a sale.\n    function list(uint256 tokenId, uint256 priceWei) external {\n        require(cards.ownerOf(tokenId) == msg.sender, \"not owner\");\n        require(cards.isApprovedForAll(msg.sender, address(this)), \"approve market first\");\n        require(priceWei > 0, \"price must be > 0\");\n        listings[tokenId] = Listing(msg.sender, priceWei, true);\n        emit Listed(tokenId, msg.sender, priceWei);\n    }\n\n    function cancel(uint256 tokenId) external {\n        Listing memory l = listings[tokenId];\n        require(l.active, \"not listed\");\n        require(l.seller == msg.sender, \"not your listing\");\n        listings[tokenId].active = false;\n        emit Cancelled(tokenId);\n    }\n\n    function buy(uint256 tokenId) external payable nonReentrant {\n        Listing memory l = listings[tokenId];\n        require(l.active, \"not listed\");\n        require(msg.value >= l.price, \"underpaid\");\n\n        listings[tokenId].active = false;\n        cards.safeTransferFrom(l.seller, msg.sender, tokenId);\n\n        (bool sent, ) = payable(l.seller).call{value: l.price}(\"\");\n        require(sent, \"payment to seller failed\");\n\n        // refund any overpayment\n        if (msg.value > l.price) {\n            (bool refunded, ) = payable(msg.sender).call{value: msg.value - l.price}(\"\");\n            require(refunded, \"refund failed\");\n        }\n\n        emit Sold(tokenId, msg.sender, l.price);\n    }\n}\n", "scripts/deploy.js": "// Deploys FalcoCard, then FalcoMarket pointed at it.\n// Usage:  npx hardhat run scripts/deploy.js --network sepolia\nconst hre = require(\"hardhat\");\n\nasync function main() {\n  const FalcoCard = await hre.ethers.getContractFactory(\"FalcoCard\");\n  const falcoCard = await FalcoCard.deploy();\n  await falcoCard.waitForDeployment();\n  const cardAddress = await falcoCard.getAddress();\n  console.log(\"FalcoCard deployed at:\", cardAddress);\n\n  const FalcoMarket = await hre.ethers.getContractFactory(\"FalcoMarket\");\n  const falcoMarket = await FalcoMarket.deploy(cardAddress);\n  await falcoMarket.waitForDeployment();\n  console.log(\"FalcoMarket deployed at:\", await falcoMarket.getAddress());\n\n  console.log(\"\\nSave these two addresses \u2014 you'll paste them into web/config.js\");\n}\n\nmain().catch((err) => {\n  console.error(err);\n  process.exitCode = 1;\n});\n", "hardhat.config.js": "require(\"@nomicfoundation/hardhat-toolbox\");\n\n// Fill these in (use environment variables in real usage \u2014 never commit a real private key).\nconst SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL || \"\";\nconst PRIVATE_KEY = process.env.PRIVATE_KEY || \"\";\n\n/** @type import('hardhat/config').HardhatUserConfig */\nmodule.exports = {\n  solidity: \"0.8.20\",\n  networks: {\n    sepolia: {\n      url: SEPOLIA_RPC_URL,\n      accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],\n    },\n  },\n};\n", "web/config.js": "// Fill in after running scripts/deploy.js\nconst FALCO_CONFIG = {\n  CARD_ADDRESS: \"0xPASTE_FALCOCARD_ADDRESS_HERE\",\n  MARKET_ADDRESS: \"0xPASTE_FALCOMARKET_ADDRESS_HERE\",\n  CHAIN_ID_HEX: \"0xaa36a7\", // Sepolia testnet. Mainnet is 0x1 \u2014 do not point real funds here without an audit.\n};\n", "web/wallet.js": "// Requires ethers.js loaded first, e.g.:\n// <script src=\"https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js\"><\/script>\n\nasync function connectWallet() {\n  if (!window.ethereum) {\n    alert(\"Install MetaMask (or another injected wallet) to continue.\");\n    return null;\n  }\n  const provider = new ethers.BrowserProvider(window.ethereum);\n  await provider.send(\"eth_requestAccounts\", []);\n\n  // make sure we're on the expected network\n  const network = await provider.getNetwork();\n  if (\"0x\" + network.chainId.toString(16) !== FALCO_CONFIG.CHAIN_ID_HEX) {\n    try {\n      await window.ethereum.request({\n        method: \"wallet_switchEthereumChain\",\n        params: [{ chainId: FALCO_CONFIG.CHAIN_ID_HEX }],\n      });\n    } catch (err) {\n      alert(\"Please switch your wallet to the expected network and try again.\");\n      return null;\n    }\n  }\n\n  const signer = await provider.getSigner();\n  const address = await signer.getAddress();\n  const el = document.getElementById(\"walletAddr\");\n  if (el) el.textContent = address;\n  return { provider, signer, address };\n}\n", "web/mint.js": "// Mints one card. Only the contract owner's wallet can call this\n// (see the `onlyOwner` modifier on FalcoCard.mint) \u2014 typically your\n// own backend/admin key, not an arbitrary player's wallet.\nconst CARD_ABI = [\n  \"function mint(address to, string tokenURI_, uint16 power_, string deckType_) returns (uint256)\",\n];\n\nasync function mintCard(signer, toAddress, tokenURI, power, deckType) {\n  const contract = new ethers.Contract(FALCO_CONFIG.CARD_ADDRESS, CARD_ABI, signer);\n  const tx = await contract.mint(toAddress, tokenURI, power, deckType);\n  const receipt = await tx.wait();\n  return receipt;\n}\n\n// Example metadata JSON to host (IPFS, or your own server) and pass as tokenURI:\n//\n// {\n//   \"name\": \"Il Bagatto \u2014 the Router\",\n//   \"description\": \"Key I of the FALCO arcana.\",\n//   \"image\": \"https://your-host.example/il-bagatto.png\",\n//   \"attributes\": [\n//     { \"trait_type\": \"Power\", \"value\": 62 },\n//     { \"trait_type\": \"Deck\", \"value\": \"falco\" }\n//   ]\n// }\n", "web/read.js": "const CARD_READ_ABI = [\n  \"function ownerOf(uint256) view returns (address)\",\n  \"function power(uint256) view returns (uint16)\",\n  \"function deckType(uint256) view returns (string)\",\n  \"function tokenURI(uint256) view returns (string)\",\n];\n\nasync function readCard(provider, tokenId) {\n  const contract = new ethers.Contract(FALCO_CONFIG.CARD_ADDRESS, CARD_READ_ABI, provider);\n  const [owner, power, deckType, tokenURI] = await Promise.all([\n    contract.ownerOf(tokenId),\n    contract.power(tokenId),\n    contract.deckType(tokenId),\n    contract.tokenURI(tokenId),\n  ]);\n  return { tokenId, owner, power, deckType, tokenURI };\n}\n", "web/market.js": "const CARD_APPROVE_ABI = [\n  \"function setApprovalForAll(address operator, bool approved)\",\n];\nconst MARKET_ABI = [\n  \"function list(uint256 tokenId, uint256 priceWei)\",\n  \"function cancel(uint256 tokenId)\",\n  \"function buy(uint256 tokenId) payable\",\n  \"function listings(uint256) view returns (address seller, uint256 price, bool active)\",\n];\n\n// One-time approval so the market contract is allowed to move your cards on a sale.\nasync function approveMarket(signer) {\n  const card = new ethers.Contract(FALCO_CONFIG.CARD_ADDRESS, CARD_APPROVE_ABI, signer);\n  const tx = await card.setApprovalForAll(FALCO_CONFIG.MARKET_ADDRESS, true);\n  await tx.wait();\n}\n\nasync function listCard(signer, tokenId, priceEth) {\n  const market = new ethers.Contract(FALCO_CONFIG.MARKET_ADDRESS, MARKET_ABI, signer);\n  const priceWei = ethers.parseEther(String(priceEth));\n  const tx = await market.list(tokenId, priceWei);\n  return tx.wait();\n}\n\nasync function cancelListing(signer, tokenId) {\n  const market = new ethers.Contract(FALCO_CONFIG.MARKET_ADDRESS, MARKET_ABI, signer);\n  const tx = await market.cancel(tokenId);\n  return tx.wait();\n}\n\nasync function buyCard(signer, tokenId) {\n  const market = new ethers.Contract(FALCO_CONFIG.MARKET_ADDRESS, MARKET_ABI, signer);\n  const listing = await market.listings(tokenId);\n  if (!listing.active) throw new Error(\"Listing is not active.\");\n  const tx = await market.buy(tokenId, { value: listing.price });\n  return tx.wait();\n}\n", "web/price.js": "// No API key needed. Rate-limited on CoinGecko's free tier \u2014 cache the result\n// client-side for at least 30-60 seconds if you poll this.\nasync function getEthUsdPrice() {\n  const res = await fetch(\n    \"https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd\"\n  );\n  if (!res.ok) throw new Error(\"price fetch failed: \" + res.status);\n  const data = await res.json();\n  return data.ethereum.usd;\n}\n", "web/index.html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>FALCO On-Chain<\/title>\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js\"><\/script>\n<style>\n  :root{ --crimson:#c81f3f; --royal:#3f56c8; --ink:#08050f; --parchment:#efe6d8; --dim:#a99cc4; }\n  *{box-sizing:border-box;}\n  body{\n    margin:0; background:var(--ink); color:var(--parchment);\n    font-family: Georgia, 'EB Garamond', serif; line-height:1.5;\n  }\n  .wrap{max-width:760px;margin:0 auto;padding:32px 24px 80px;}\n  h1{font-size:1.8rem;margin-bottom:4px;}\n  h2{font-size:1.15rem;margin:0 0 10px;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:6px;}\n  p.sub{color:var(--dim);margin-top:0;}\n  section{\n    margin-top:28px;padding:20px;border:1px solid rgba(255,255,255,.12);\n    border-radius:8px;background:rgba(255,255,255,.02);\n  }\n  label{display:block;font-size:.8rem;color:var(--dim);margin:10px 0 4px;}\n  input, select{\n    width:100%;padding:8px 10px;background:#140d20;border:1px solid rgba(255,255,255,.2);\n    color:var(--parchment);border-radius:4px;font-size:.95rem;\n  }\n  button{\n    margin-top:12px;padding:9px 18px;border-radius:4px;border:1px solid var(--royal);\n    background:transparent;color:var(--parchment);cursor:pointer;font-size:.85rem;letter-spacing:.02em;\n  }\n  button:hover{background:var(--royal);}\n  button.gold{border-color:#ffd76a;color:#ffd76a;}\n  button.gold:hover{background:#ffd76a;color:#1a1408;}\n  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}\n  .row > div{flex:1;min-width:140px;}\n  .status{margin-top:10px;font-size:.82rem;color:var(--dim);white-space:pre-wrap;word-break:break-all;}\n  .pill{\n    display:inline-block;border:1px solid var(--royal);border-radius:14px;\n    padding:3px 12px;font-size:.78rem;margin-top:8px;\n  }\n  code{background:#140d20;padding:1px 5px;border-radius:3px;font-size:.85em;}\n  .warn{border-color:var(--crimson);color:#ffb3c0;font-size:.82rem;}\n<\/style>\n<\/head>\n<body>\n<div class=\"wrap\">\n  <h1>FALCO \u2014 On-Chain<\/h1>\n  <p class=\"sub\">Connects to a real wallet and a real deployed contract. Open this file directly, or serve it from any static host \u2014 it will not run inside a Claude artifact page.<\/p>\n\n  <section class=\"warn\">\n    <b>Before you touch this:<\/b> fill in <code>CARD_ADDRESS<\/code>, <code>MARKET_ADDRESS<\/code>, and\n    <code>CHAIN_ID_HEX<\/code> below with your own deployed contracts (see the accompanying\n    <code>contracts/<\/code> and <code>scripts/deploy.js<\/code>). This ships pointed at nothing \u2014\n    it will not work until you deploy your own contracts and paste their addresses in.\n  <\/section>\n\n  <section>\n    <h2>1 \u00b7 Wallet<\/h2>\n    <button id=\"btnConnect\">Connect Wallet<\/button>\n    <div class=\"pill\" id=\"walletAddr\">not connected<\/div>\n    <div class=\"status\" id=\"walletStatus\"><\/div>\n  <\/section>\n\n  <section>\n    <h2>2 \u00b7 Live ETH price<\/h2>\n    <button id=\"btnPrice\">Refresh price<\/button>\n    <div class=\"pill\" id=\"priceOut\">\u2014<\/div>\n  <\/section>\n\n  <section>\n    <h2>3 \u00b7 Mint a card <span style=\"font-weight:normal;font-size:.75rem;color:var(--dim);\">(owner wallet only)<\/span><\/h2>\n    <div class=\"row\">\n      <div><label>Recipient address<\/label><input id=\"mintTo\" placeholder=\"0x...\"><\/div>\n      <div><label>Power (1-99)<\/label><input id=\"mintPower\" type=\"number\" value=\"50\" min=\"1\" max=\"99\"><\/div>\n    <\/div>\n    <label>Deck type<\/label>\n    <select id=\"mintDeck\">\n      <option value=\"falco\">falco<\/option>\n      <option value=\"euchre\">euchre<\/option>\n      <option value=\"naipes\">naipes<\/option>\n      <option value=\"tarot\">tarot<\/option>\n      <option value=\"custom\">custom<\/option>\n    <\/select>\n    <label>Token URI (metadata JSON link)<\/label>\n    <input id=\"mintURI\" placeholder=\"https://your-host.example/card-1.json\">\n    <button class=\"gold\" id=\"btnMint\">Mint<\/button>\n    <div class=\"status\" id=\"mintStatus\"><\/div>\n  <\/section>\n\n  <section>\n    <h2>4 \u00b7 Look up a card<\/h2>\n    <div class=\"row\">\n      <div><label>Token ID<\/label><input id=\"readId\" type=\"number\" value=\"0\"><\/div>\n      <div style=\"align-self:flex-end;\"><button id=\"btnRead\">Read<\/button><\/div>\n    <\/div>\n    <div class=\"status\" id=\"readOut\"><\/div>\n  <\/section>\n\n  <section>\n    <h2>5 \u00b7 Market<\/h2>\n    <div class=\"row\">\n      <div><label>Token ID<\/label><input id=\"mkId\" type=\"number\" value=\"0\"><\/div>\n      <div><label>Price (ETH)<\/label><input id=\"mkPrice\" type=\"number\" step=\"0.001\" value=\"0.01\"><\/div>\n    <\/div>\n    <div class=\"row\">\n      <button id=\"btnApprove\">1 \u00b7 Approve market<\/button>\n      <button id=\"btnList\">2 \u00b7 List<\/button>\n      <button class=\"gold\" id=\"btnBuy\">Buy<\/button>\n      <button id=\"btnCancel\">Cancel listing<\/button>\n    <\/div>\n    <div class=\"status\" id=\"mkStatus\"><\/div>\n  <\/section>\n<\/div>\n\n<script>\n/* ===== config \u2014 paste your deployed addresses here ===== */\nconst FALCO_CONFIG = {\n  CARD_ADDRESS: \"0xPASTE_FALCOCARD_ADDRESS_HERE\",\n  MARKET_ADDRESS: \"0xPASTE_FALCOMARKET_ADDRESS_HERE\",\n  CHAIN_ID_HEX: \"0xaa36a7\", // Sepolia testnet. Mainnet is 0x1 \u2014 don't point real funds here without an audit.\n};\n\n/* ===== wallet ===== */\nlet CURRENT = { provider:null, signer:null, address:null };\n\nasync function connectWallet(){\n  if(!window.ethereum){\n    document.getElementById('walletStatus').textContent = \"No injected wallet found \u2014 install MetaMask or similar.\";\n    return null;\n  }\n  const provider = new ethers.BrowserProvider(window.ethereum);\n  await provider.send(\"eth_requestAccounts\", []);\n  const network = await provider.getNetwork();\n  if(\"0x\"+network.chainId.toString(16) !== FALCO_CONFIG.CHAIN_ID_HEX){\n    try{\n      await window.ethereum.request({ method:\"wallet_switchEthereumChain\", params:[{chainId: FALCO_CONFIG.CHAIN_ID_HEX}] });\n    }catch(e){\n      document.getElementById('walletStatus').textContent = \"Switch your wallet to the expected network and try again.\";\n      return null;\n    }\n  }\n  const signer = await provider.getSigner();\n  const address = await signer.getAddress();\n  CURRENT = { provider, signer, address };\n  document.getElementById('walletAddr').textContent = address;\n  document.getElementById('walletStatus').textContent = \"connected.\";\n  return CURRENT;\n}\ndocument.getElementById('btnConnect').addEventListener('click', connectWallet);\n\n/* ===== price ===== */\nasync function getEthUsdPrice(){\n  const res = await fetch(\"https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd\");\n  if(!res.ok) throw new Error(\"price fetch failed: \"+res.status);\n  const data = await res.json();\n  return data.ethereum.usd;\n}\ndocument.getElementById('btnPrice').addEventListener('click', async ()=>{\n  const out = document.getElementById('priceOut');\n  out.textContent = \"loading\u2026\";\n  try{ out.textContent = \"$\" + (await getEthUsdPrice()).toLocaleString() + \" / ETH\"; }\n  catch(e){ out.textContent = \"error: \"+e.message; }\n});\n\n/* ===== mint ===== */\nconst CARD_ABI = [\n  \"function mint(address to, string tokenURI_, uint16 power_, string deckType_) returns (uint256)\",\n];\ndocument.getElementById('btnMint').addEventListener('click', async ()=>{\n  const status = document.getElementById('mintStatus');\n  if(!CURRENT.signer){ status.textContent = \"Connect your wallet first.\"; return; }\n  const to = document.getElementById('mintTo').value.trim();\n  const power = +document.getElementById('mintPower').value;\n  const deckType = document.getElementById('mintDeck').value;\n  const uri = document.getElementById('mintURI').value.trim();\n  if(!ethers.isAddress(to)){ status.textContent = \"Enter a valid recipient address.\"; return; }\n  status.textContent = \"sending transaction\u2026\";\n  try{\n    const contract = new ethers.Contract(FALCO_CONFIG.CARD_ADDRESS, CARD_ABI, CURRENT.signer);\n    const tx = await contract.mint(to, uri, power, deckType);\n    status.textContent = \"waiting for confirmation\u2026 (\"+tx.hash+\")\";\n    const receipt = await tx.wait();\n    status.textContent = \"minted. tx: \" + receipt.hash;\n  }catch(e){\n    status.textContent = \"error: \" + (e.shortMessage || e.message);\n  }\n});\n\n/* ===== read ===== */\nconst CARD_READ_ABI = [\n  \"function ownerOf(uint256) view returns (address)\",\n  \"function power(uint256) view returns (uint16)\",\n  \"function deckType(uint256) view returns (string)\",\n  \"function tokenURI(uint256) view returns (string)\",\n];\ndocument.getElementById('btnRead').addEventListener('click', async ()=>{\n  const out = document.getElementById('readOut');\n  const provider = CURRENT.provider || (window.ethereum ? new ethers.BrowserProvider(window.ethereum) : null);\n  if(!provider){ out.textContent = \"Connect a wallet (or install one) to read on-chain data.\"; return; }\n  const id = +document.getElementById('readId').value;\n  out.textContent = \"reading\u2026\";\n  try{\n    const contract = new ethers.Contract(FALCO_CONFIG.CARD_ADDRESS, CARD_READ_ABI, provider);\n    const [owner, power, deckType, uri] = await Promise.all([\n      contract.ownerOf(id), contract.power(id), contract.deckType(id), contract.tokenURI(id)\n    ]);\n    out.textContent = `owner: ${owner}\\npower: ${power}\\ndeckType: ${deckType}\\ntokenURI: ${uri}`;\n  }catch(e){\n    out.textContent = \"error: \" + (e.shortMessage || e.message);\n  }\n});\n\n/* ===== market ===== */\nconst CARD_APPROVE_ABI = [\"function setApprovalForAll(address operator, bool approved)\"];\nconst MARKET_ABI = [\n  \"function list(uint256 tokenId, uint256 priceWei)\",\n  \"function cancel(uint256 tokenId)\",\n  \"function buy(uint256 tokenId) payable\",\n  \"function listings(uint256) view returns (address seller, uint256 price, bool active)\",\n];\nfunction requireSigner(){\n  if(!CURRENT.signer) throw new Error(\"Connect your wallet first.\");\n  return CURRENT.signer;\n}\ndocument.getElementById('btnApprove').addEventListener('click', async ()=>{\n  const status = document.getElementById('mkStatus');\n  try{\n    const signer = requireSigner();\n    status.textContent = \"approving\u2026\";\n    const card = new ethers.Contract(FALCO_CONFIG.CARD_ADDRESS, CARD_APPROVE_ABI, signer);\n    const tx = await card.setApprovalForAll(FALCO_CONFIG.MARKET_ADDRESS, true);\n    await tx.wait();\n    status.textContent = \"market approved to move your cards.\";\n  }catch(e){ status.textContent = \"error: \" + (e.shortMessage || e.message); }\n});\ndocument.getElementById('btnList').addEventListener('click', async ()=>{\n  const status = document.getElementById('mkStatus');\n  try{\n    const signer = requireSigner();\n    const id = +document.getElementById('mkId').value;\n    const price = document.getElementById('mkPrice').value;\n    status.textContent = \"listing\u2026\";\n    const market = new ethers.Contract(FALCO_CONFIG.MARKET_ADDRESS, MARKET_ABI, signer);\n    const tx = await market.list(id, ethers.parseEther(String(price)));\n    await tx.wait();\n    status.textContent = `listed token ${id} for ${price} ETH.`;\n  }catch(e){ status.textContent = \"error: \" + (e.shortMessage || e.message); }\n});\ndocument.getElementById('btnBuy').addEventListener('click', async ()=>{\n  const status = document.getElementById('mkStatus');\n  try{\n    const signer = requireSigner();\n    const id = +document.getElementById('mkId').value;\n    status.textContent = \"checking listing\u2026\";\n    const market = new ethers.Contract(FALCO_CONFIG.MARKET_ADDRESS, MARKET_ABI, signer);\n    const listing = await market.listings(id);\n    if(!listing.active) throw new Error(\"that listing is not active\");\n    status.textContent = \"buying\u2026\";\n    const tx = await market.buy(id, { value: listing.price });\n    await tx.wait();\n    status.textContent = `bought token ${id}.`;\n  }catch(e){ status.textContent = \"error: \" + (e.shortMessage || e.message); }\n});\ndocument.getElementById('btnCancel').addEventListener('click', async ()=>{\n  const status = document.getElementById('mkStatus');\n  try{\n    const signer = requireSigner();\n    const id = +document.getElementById('mkId').value;\n    status.textContent = \"cancelling\u2026\";\n    const market = new ethers.Contract(FALCO_CONFIG.MARKET_ADDRESS, MARKET_ABI, signer);\n    const tx = await market.cancel(id);\n    await tx.wait();\n    status.textContent = `cancelled listing for token ${id}.`;\n  }catch(e){ status.textContent = \"error: \" + (e.shortMessage || e.message); }\n});\n<\/script>\n<\/body>\n<\/html>\n", "README.md": "# FALCO On-Chain \u2014 starter kit\n\nPlain code, meant to run on a page **you** host (Vercel, Netlify, your own server,\nor just `python3 -m http.server` while you test). It will **not** run inside a\nClaude-hosted artifact page \u2014 that sandbox blocks the network calls this needs\n(a wallet bridge aside, arbitrary RPC/API calls are not allowed there).\n\nThis is unaudited scaffolding, not production security. Test everything on a\ntestnet (Sepolia) with fake ETH before it ever touches real funds, and get a\nreal audit before you let strangers put money through it.\n\n## Layout\n```\ncontracts/\n  FalcoCard.sol     \u2014 ERC-721 card (power, deckType, mint, train)\n  FalcoMarket.sol    \u2014 escrow-style list/buy/cancel marketplace\nscripts/\n  deploy.js          \u2014 Hardhat deploy script for both contracts\nhardhat.config.js\nweb/\n  config.js          \u2014 paste your deployed addresses here\n  wallet.js          \u2014 connect MetaMask / injected wallet\n  mint.js            \u2014 mint a card (owner-only)\n  read.js            \u2014 read a card's on-chain stats/owner\n  market.js          \u2014 list / buy / cancel\n  price.js           \u2014 live ETH/USD price (CoinGecko, no key needed)\n```\n\n## Setup\n```bash\nnpm install --save-dev hardhat @nomicfoundation/hardhat-toolbox\nnpm install @openzeppelin/contracts\nnpx hardhat init            # choose \"create a JavaScript project\" if prompted\n# copy contracts/, scripts/, hardhat.config.js into the project hardhat creates\n```\n\nGet a free Sepolia RPC URL (Alchemy or Infura) and a small amount of test ETH\nfrom a Sepolia faucet, then:\n\n```bash\nexport SEPOLIA_RPC_URL=\"https://...\"\nexport PRIVATE_KEY=\"0x...\"          # a throwaway test wallet's key \u2014 never a real one\nnpx hardhat run scripts/deploy.js --network sepolia\n```\n\nPaste the two printed addresses into `web/config.js`.\n\n## Using it from a page\n```html\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js\"><\/script>\n<script src=\"config.js\"><\/script>\n<script src=\"wallet.js\"><\/script>\n<script src=\"mint.js\"><\/script>\n<script src=\"read.js\"><\/script>\n<script src=\"market.js\"><\/script>\n<script src=\"price.js\"><\/script>\n\n<button onclick=\"connectWallet()\">Connect Wallet<\/button>\n<span id=\"walletAddr\"><\/span>\n```\n\nThen call `mintCard(signer, ...)`, `readCard(provider, tokenId)`,\n`listCard(signer, tokenId, priceEth)`, `buyCard(signer, tokenId)` as needed \u2014\neach function is a few lines, documented inline in its file.\n\n## What this deliberately leaves out\n- Real trick-taking rules for Euchre/Tarot \u2014 the Vault's Power stat is a stand-in.\n- Any server-side validation of `train()` cooldowns, rate limits, or pricing.\n- Metadata hosting \u2014 you'll want IPFS (e.g. via nft.storage or Pinata) for\n  `tokenURI` in production rather than a URL you control.\n- Legal/regulatory review \u2014 tokenizing collectibles for value has real\n  jurisdiction-dependent implications; this is code, not legal advice.\n"}</script>
+<script>
+/* ============== tabs ============== */
+document.querySelectorAll('.tabbtn').forEach(b=>b.addEventListener('click', ()=>{
+  document.querySelectorAll('.tabbtn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+}));
+
+function esc(s){ const d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; }
+function toRoman(n){ const vals=[10,9,5,4,1], syms=['X','IX','V','IV','I']; let r=''; for(let i=0;i<vals.length;i++){ while(n>=vals[i]){ r+=syms[i]; n-=vals[i]; } } return r; }
+
+/* ============== tessellation art ============== */
+const CR='#c81f3f', RB='#3f56c8', PARCH='#efe6d8';
+function svgWrap(inner){ return `<svg viewBox="0 0 160 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><rect width="100%" height="100%" fill="#0a0616"/>${inner}</svg>`; }
+function hexPts(cx,cy,r){ let p=[]; for(let i=0;i<6;i++){ const a=Math.PI/180*(60*i-30); p.push((cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1)); } return p.join(' '); }
+function tessHex(rot=0){
+  let s=''; const r=16, dx=r*Math.sqrt(3), dy=r*1.5;
+  for(let row=-1; row<9; row++) for(let col=-1; col<7; col++){
+    const cx=col*dx+(row%2?dx/2:0), cy=row*dy;
+    const d=Math.hypot(cx-80,cy-110), op=Math.max(.15,1-d/140);
+    s+=`<polygon points="${hexPts(cx,cy,r-1.4)}" fill="${(row+col)%2===0?CR:RB}" opacity="${op.toFixed(2)}"/>`;
+  }
+  return svgWrap(`<g transform="rotate(${rot} 80 110)">${s}</g>`);
+}
+function tessTri(){
+  let s=''; const size=20;
+  for(let row=-1;row<13;row++) for(let col=-1;col<10;col++){
+    const x=col*size, y=row*size*0.87, up=(row+col)%2===0;
+    const pts = up? `${x},${y+17} ${x+10},${y} ${x+20},${y+17}` : `${x},${y} ${x+20},${y} ${x+10},${y+17}`;
+    s+=`<polygon points="${pts}" fill="${(row*7+col*3)%2===0?CR:RB}" opacity="${(0.35+((row+col)%3)*0.2).toFixed(2)}"/>`;
+  }
+  return svgWrap(s);
+}
+function tessStar(){
+  let s='';
+  for(let row=-1;row<6;row++) for(let col=-1;col<5;col++){
+    const x=col*40+20, y=row*44+22;
+    s+=`<g transform="translate(${x} ${y})"><rect x="-14" y="-14" width="28" height="28" fill="${RB}" opacity=".55"/><rect x="-14" y="-14" width="28" height="28" fill="${CR}" opacity=".55" transform="rotate(45)"/></g>`;
+  }
+  return svgWrap(s);
+}
+function tessSierpinski(depth=5){
+  let s='';
+  function tri(x,y,size,d,flip){
+    if(d===0){ s+=`<polygon points="${x},${y+size} ${x+size/2},${y} ${x+size},${y+size}" fill="${flip?CR:RB}" opacity=".85"/>`; return; }
+    const h=size/2; tri(x,y+h,h,d-1,!flip); tri(x+h/2,y,h,d-1,flip); tri(x+h,y+h,h,d-1,!flip);
+  }
+  tri(0,10,180,depth,true);
+  return svgWrap(s);
+}
+function tessMatrix(){
+  let s='';
+  for(let row=0;row<9;row++) for(let col=0;col<7;col++){
+    const angle=(row*7+col)*9, x=col*24+12, y=row*24+12;
+    s+=`<g transform="translate(${x} ${y}) rotate(${angle})"><rect x="-8" y="-8" width="16" height="16" fill="${(row+col)%2?RB:CR}" opacity="${(0.25+(row/9)*0.5).toFixed(2)}"/></g>`;
+  }
+  return svgWrap(s);
+}
+const DECK_ART = {falco:tessStar, euchre:tessMatrix, naipes:tessTri, tarot:tessSierpinski};
+
+/* ============== deck data ============== */
+const FALCO_CARDS = [
+  {key:'0', name:'Il Matto', sub:'the Fool', h:'All Keys, unopened', text:'Carries the whole deck folded into one pattern — an eight-point star tiling that covers a plane with no gaps.'},
+  {key:'I', name:'Il Bagatto', sub:'the Router', h:'Binary addition & throughput', text:'A systolic pipeline — ripple-carry adds one digit at a time, carry-lookahead computes every carry in parallel.'},
+  {key:'II', name:'La Papessa', sub:'keeper of the ring', h:'Modular arithmetic', text:'Rings are a clock face pushed outward — any number wraps back to the start after N steps.'},
+  {key:'III', name:"L'Imperatrice", sub:'grower of the spiral', h:'The golden angle', text:'Packs points using 137.5°, the golden angle — the turn that never lets two points line up.'},
+  {key:'IV', name:"L'Imperatore", sub:'ruler of the grid', h:'Rotation matrices', text:'Each tile is the same square, rotated a little more by a fixed matrix multiplication.'},
+  {key:'V', name:'Il Papa', sub:'reader of the triangle', h:"Pascal's triangle, mod 2", text:'Colour odd/even entries of Pascal\'s triangle and you get this exact fractal — also repeated XOR.'},
+  {key:'VI', name:'Gli Amanti', sub:'choosers of the path', h:'Truchet tiles', text:'Two tiles, placed at random, produce a maze no one designed.'},
+  {key:'VII', name:'Il Carro', sub:'driver of the pipeline', h:'Pipelining & throughput', text:'Each stage starts the instant the one before it finishes — more finished pieces per second.'},
+  {key:'VIII', name:'La Giustizia', sub:'weigher of the map', h:'Karnaugh maps', text:'Adjacent matching squares mean the logic simplifies — how engineers shrink circuits.'},
+  {key:'IX', name:"L'Eremita", sub:'lantern of the automaton', h:'Cellular automata', text:'One rule, applied row after row — Rule 30 alone produces patterns irregular enough to seed randomness.'},
+  {key:'X', name:'La Ruota', sub:'turner of symmetry', h:'Symmetry groups', text:'Only a handful of angles bring a shape back into alignment with itself.'},
+  {key:'XI', name:'La Forza', sub:'binder of the lattice', h:'Load-bearing lattices', text:'The hexagon tiles perfectly with no wasted material and spreads force evenly.'},
+  {key:'XII', name:"L'Appeso", sub:'seer of nearest ground', h:'Voronoi diagrams', text:'Every point owns the territory closer to it than to any other — nearest-neighbour search.'},
+  {key:'XIII', name:'La Morte', sub:'pattern that never repeats', h:'Aperiodic tiling', text:'Covers the whole plane and never repeats — a Penrose tiling, proof order needs no repetition.'},
+  {key:'XIV', name:'La Temperanza', sub:'mixer of dimensions', h:'The hypercube', text:'Two squares, corners joined, is the shadow a 4D cube casts into 3 dimensions.'},
+  {key:'XV', name:'Il Diavolo', sub:'colourer of borders', h:'Four colour theorem', text:'However regions are drawn, four colours are always enough to separate every border.'},
+  {key:'XVI', name:'La Torre', sub:'branch that always splits', h:'Binary trees', text:'Every branch becomes exactly two — the rule a search tree uses to halve a haystack.'},
+  {key:'XVII', name:'Le Stelle', sub:'many places at once', h:'Superposition', text:'Each glow marks a place a thing might be found, all held at once until forced to an answer.'},
+  {key:'XVIII', name:'La Luna', sub:'shortcut through folded space', h:'Graph shortcuts', text:'A wormhole is a shortcut edge — the same trick skip lists use to turn a crawl into a jump.'},
+  {key:'XIX', name:'Il Sole', sub:'tiling that wastes nothing', h:'Tiling & area', text:'Triangles tile a plane with no gaps, and every polygon breaks down into them.'},
+];
+function buildFalco(){ return FALCO_CARDS.map((c,i)=>({name:c.name, sub:c.sub, deckType:'falco', power:35+((i*7)%55), h:c.h, text:c.text})); }
+function buildEuchre(){
+  const suits=[['♠','Spades'],['♥','Hearts'],['♦','Diamonds'],['♣','Clubs']];
+  const ranks=[['9',30],['10',36],['J',42],['Q',48],['K',54],['A',60]];
+  const out=[]; suits.forEach(([sym,name])=>ranks.forEach(([r,p])=>out.push({name:r+sym, sub:r+' of '+name, deckType:'euchre', power:p, h:'Euchre', text:'Standard 24-card Euchre deck: 9 through Ace in all four suits.'})));
+  return out;
+}
+function buildNaipes(){
+  const suits=['Oros','Copas','Espadas','Bastos'];
+  const ranks=[['As',30],['2',22],['3',24],['4',26],['5',28],['6',32],['7',34],['Sota',40],['Caballo',46],['Rey',52]];
+  const out=[]; suits.forEach(su=>ranks.forEach(([r,p])=>out.push({name:r+' de '+su, sub:su, deckType:'naipes', power:p, h:'Naipes', text:'Standard 40-card Spanish deck: Oros, Copas, Espadas, Bastos.'})));
+  return out;
+}
+function buildTarot(){
+  const majors=['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Strength','The Hermit','Wheel of Fortune','Justice','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
+  const out=majors.map((m,i)=>({name:m, sub:'Major Arcana '+(i===0?'0':toRoman(i)), deckType:'tarot', power:48+i*2, h:'Major Arcana', text:'One of the 22 trump cards of the Tarot.'}));
+  const suits=['Wands','Cups','Swords','Pentacles'], minor=['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
+  suits.forEach(su=>minor.forEach((r,i)=>out.push({name:r+' of '+su, sub:su, deckType:'tarot', power:18+i*2, h:'Minor Arcana', text:'One of the 56 Minor Arcana, four suits of 14 cards each.'})));
+  return out;
+}
+const DECKS = {falco:buildFalco(), euchre:buildEuchre(), naipes:buildNaipes(), tarot:buildTarot()};
+const DECK_LABELS = {falco:'FALCO (20)', euchre:'Euchre (24)', naipes:'Naipes (40)', tarot:'Tarot (78)'};
+
+let currentDeck='falco';
+function renderDeckChips(){
+  document.getElementById('deckChips').innerHTML = Object.keys(DECKS).map(k=>
+    `<button class="chip${k===currentDeck?' active':''}" data-deck="${k}">${DECK_LABELS[k]}</button>`).join('');
+  document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click', ()=>{ currentDeck=c.dataset.deck; renderDeckChips(); renderDeckGrid(); }));
+}
+function renderDeckGrid(){
+  const grid = document.getElementById('deckGrid');
+  const artFn = DECK_ART[currentDeck];
+  grid.innerHTML = DECKS[currentDeck].map((c,i)=>`
+    <div class="card" data-i="${i}">
+      <div class="inner">
+        <div class="face front">${artFn()}<span class="pow">${c.power}</span><div class="card-title"><b>${esc(c.name)}</b><i>${esc(c.sub)}</i></div></div>
+        <div class="face back"><h4>${esc(c.h)}</h4><p>${esc(c.text)}</p></div>
+      </div>
+    </div>`).join('');
+  grid.querySelectorAll('.card').forEach(el=>el.addEventListener('click', ()=>el.classList.toggle('flipped')));
+}
+renderDeckChips(); renderDeckGrid();
+
+/* ============== code browser ============== */
+const FILES = JSON.parse(document.getElementById('files-data').textContent);
+const GROUPS = [
+  {label:'Contracts', files:['contracts/FalcoCard.sol','contracts/FalcoMarket.sol']},
+  {label:'Deploy', files:['scripts/deploy.js','hardhat.config.js']},
+  {label:'Web', files:['web/config.js','web/wallet.js','web/mint.js','web/read.js','web/market.js','web/price.js','web/index.html']},
+  {label:'Docs', files:['README.md']},
+];
+function renderFileList(){
+  const el = document.getElementById('fileList');
+  el.innerHTML = GROUPS.map(g=>`<div class="grp">${g.label}</div>` + g.files.map(f=>
+    `<button data-file="${f}">${f.split('/').pop()}</button>`).join('')).join('');
+  el.querySelectorAll('[data-file]').forEach(b=>b.addEventListener('click', ()=>showFile(b.dataset.file)));
+}
+function showFile(path){
+  document.querySelectorAll('#fileList [data-file]').forEach(b=>b.classList.toggle('active', b.dataset.file===path));
+  document.getElementById('fileLabel').textContent = path;
+  document.getElementById('codeOut').textContent = FILES[path] || '// not found';
+}
+document.getElementById('copyBtn').addEventListener('click', ()=>{
+  navigator.clipboard.writeText(document.getElementById('codeOut').textContent);
+  const b = document.getElementById('copyBtn'); const old=b.textContent;
+  b.textContent='Copied'; setTimeout(()=>b.textContent=old, 1200);
+});
+renderFileList();
+showFile('contracts/FalcoCard.sol');
+</script>
+</body>
+</html>
