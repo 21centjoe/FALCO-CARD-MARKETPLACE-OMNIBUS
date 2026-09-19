@@ -71,3 +71,6 @@ More “open-source + commercial” style: #OpenSourceProduct #EditableOpenSourc
 Best balanced set for GitHub: #CompleteOmnibus #EditableCode #RapidDeployment #MonetizeFast #LaunchReady #DeployQuickly #StartupBuild #RevenueReady #ModularCode #CodeYouCanEdit
 
 
+Created by Joseph La Follette 
+
+
