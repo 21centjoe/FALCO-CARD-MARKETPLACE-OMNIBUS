@@ -60,3 +60,14 @@ Then call `mintCard(signer, ...)`, `readCard(provider, tokenId)`, `listCard(sign
 - Any server-side validation of `train()` cooldowns, rate limits, or pricing.
 - Metadata hosting — you'll want IPFS (e.g. via nft.storage or Pinata) for `tokenURI` in production rather than a URL you control.
 - Legal/regulatory review — tokenizing collectibles for value has real jurisdiction-dependent implications; this is code, not legal advice.
+
+- Metatags
+- Primary marketing set: #CompleteOmnibus #EditableCode #RapidDeployment #MonetizeFast #LaunchReady #DeployQuickly #BusinessReady #ScalableTemplate #ProductizedCode #StartupBuild #RevenueReady #ModularCode #CodeYouCanEdit #BuildAndSell #MonetizationReady
+
+More product-focused: #FullStackStarter #AppTemplate #LaunchKit #DigitalProduct #CommerceBuild #EditablePlatform #DeployableCode #CodeMarketplace #RapidLaunch #StartupToolkit #TurnKeySolution #MonetizeYourCode #WebAppStarter #EcommerceTemplate #SaaSStarter
+
+More “open-source + commercial” style: #OpenSourceProduct #EditableOpenSource #DeployableOpenSource #MonetizableCode #CommercialReady #StartupCodebase #BuildToSell #ProductReady #LaunchableCode #RevenueGeneratingCode #CodeWithValue #BusinessReadyCode #ReadyToDeploy #EditAndScale
+
+Best balanced set for GitHub: #CompleteOmnibus #EditableCode #RapidDeployment #MonetizeFast #LaunchReady #DeployQuickly #StartupBuild #RevenueReady #ModularCode #CodeYouCanEdit
+
+
