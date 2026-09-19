@@ -72,5 +72,6 @@ Best balanced set for GitHub: #CompleteOmnibus #EditableCode #RapidDeployment #M
 
 
 Created by Joseph La Follette 
+for licensing beyond the AGPL, contact 21centjoe@gmail.com
 
 
